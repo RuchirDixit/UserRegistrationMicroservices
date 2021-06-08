@@ -1,8 +1,12 @@
 package com.bridgelabz.userregistrationproblem.service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +34,13 @@ public class UserRegistrationService implements IUserRegistrationService{
 	@Autowired
 	TokenUtil tokenUtil;
 	
+	@Autowired
+	EmailService emailService;
+	
 	@Override
 	public Response addNewUser(@Valid UserDTO dto) {
+		String host = System.getenv("HOST_NAME");
+		String port = System.getenv("HOST_PORT");
 		Optional<UserEntity> isPresent = userRegistrationRepository.findByEmailId(dto.getEmailId());
 		if(isPresent.isPresent()) {
 			log.error("User exists already.");
@@ -40,6 +49,11 @@ public class UserRegistrationService implements IUserRegistrationService{
 			UserEntity userEntity = modelMapper.map(dto,UserEntity.class);
 			userRegistrationRepository.save(userEntity);
 			String token = tokenUtil.createToken(userEntity.getId());
+			try {
+				emailService.sendmail(dto.getEmailId(),"User Verification","Please click on the below link to verify : \n http://"+host+":"+port+"/user/verify/"+token);
+			} catch (MessagingException | IOException e) {
+				e.printStackTrace();
+			}
 			log.debug("User added.");
 			return new Response(200, "User registered successfully!", token);
 		}
