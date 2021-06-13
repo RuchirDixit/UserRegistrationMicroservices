@@ -18,7 +18,7 @@ public class TokenUtil {
 
 	private static final String TOKEN_SECRET = "Ruchir";
 
-	public  String createToken(int id)   {
+	public  String createToken(long id)   {
 	       try {
 	        //to set algorithm
 	    	log.debug("Token creation");
@@ -37,9 +37,9 @@ public class TokenUtil {
 	       return null;
 	 	}
 	
-	public int decodeToken(String token)
+	public long decodeToken(String token)
 		 {
-		 	int userid;
+		 	long userid;
 		           //for verification algorithm
 	    	log.debug("Token verification");
 		    Verification verification = null;
@@ -55,7 +55,7 @@ public class TokenUtil {
 	
 		     Claim claim=decodedjwt.
 		     getClaim("user_id");
-		     userid=claim.asInt();    
+		     userid=claim.asLong();    
 		     return userid;
 		     
 		 }
